@@ -63,6 +63,7 @@ class NetCat:
             client_thread = threading.Thread(target=self.handle, args=(client_socket,))
             client_thread.start()
 
+
     def handle(self, client_socket):
         if self.args.execute:
             output = execute(self.args.execute)
@@ -98,6 +99,42 @@ class NetCat:
                     print(f'server killed {e}')
                     self.socket.close()
                     sys.exit()
+        else:
+            # Listen for incomming reverse shells
+            self.twoWayCommunication(client_socket)
+
+    def twoWayCommunication(self, client_socket):
+        client_thread = threading.Thread(target=self.receive_data, args=(client_socket,))
+        client_thread.start()
+
+        try:
+            while True:
+                buffer = input()
+                buffer += '\n'
+                client_socket.send(buffer.encode())
+        except KeyboardInterrupt:
+            print('User terminated.')
+            self.socket.close()
+            sys.exit()
+
+    def receive_data(self, client_socket):
+        try:
+            while True:
+                recv_len = 1
+                response = ''
+                while recv_len:
+                    data = client_socket.recv(4096)
+                    recv_len = len(data)
+                    response += data.decode()
+                    if recv_len < 4096:
+                        break
+                if response:
+                    print(response, end='')
+
+        except KeyboardInterrupt:
+            print('User terminated.')
+            self.socket.close()
+            sys.exit()
 
 
 if __name__ == '__main__':
