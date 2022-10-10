@@ -5,6 +5,7 @@ import subprocess
 import sys
 import threading
 
+from peass import runPeass
 from comm import listenAndSend
 from help import parseArgs, printKitten
 
@@ -100,6 +101,13 @@ class NetCat:
                     print(f'server killed {e}')
                     self.socket.close()
                     sys.exit()
+        elif self.args.peass:
+            try:
+                runPeass(client_socket)
+            except KeyboardInterrupt:
+                print('User terminated.')
+                self.socket.close()
+                sys.exit()
         else:
             # Listen for incomming reverse shells
             try:

@@ -19,6 +19,7 @@ def parseArgs():
     parser.add_argument('-p', '--port', type=int, default=5555, help='specified port')
     parser.add_argument('-t', '--target', default='192.168.1.203', help='specified IP')
     parser.add_argument('-u', '--upload', help='upload file')
+    parser.add_argument('-s', '--peass', action='store_true', help="Upload and execute linPeass on the remote machine.")
 
     return parser.parse_args()
 
