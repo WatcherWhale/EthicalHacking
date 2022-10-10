@@ -3,9 +3,10 @@ import socket
 import shlex
 import subprocess
 import sys
-import textwrap
 import threading
 
+from comm import listenAndSend
+from help import parseArgs, printKitten
 
 def execute(cmd):
     cmd = cmd.strip()
@@ -101,62 +102,19 @@ class NetCat:
                     sys.exit()
         else:
             # Listen for incomming reverse shells
-            self.twoWayCommunication(client_socket)
-
-    def twoWayCommunication(self, client_socket):
-        client_thread = threading.Thread(target=self.receive_data, args=(client_socket,))
-        client_thread.start()
-
-        try:
-            while True:
-                buffer = input()
-                buffer += '\n'
-                client_socket.send(buffer.encode())
-        except KeyboardInterrupt:
-            print('User terminated.')
-            self.socket.close()
-            sys.exit()
-
-    def receive_data(self, client_socket):
-        try:
-            while True:
-                recv_len = 1
-                response = ''
-                while recv_len:
-                    data = client_socket.recv(4096)
-                    recv_len = len(data)
-                    response += data.decode()
-                    if recv_len < 4096:
-                        break
-                if response:
-                    print(response, end='')
-
-        except KeyboardInterrupt:
-            print('User terminated.')
-            self.socket.close()
-            sys.exit()
-
+            try:
+                listenAndSend(client_socket)
+            except KeyboardInterrupt:
+                print('User terminated.')
+                self.socket.close()
+                sys.exit()
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='BHP Net Tool',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=textwrap.dedent('''Example:
-          netcat.py -t 192.168.1.108 -p 5555 -l -c # command shell
-          netcat.py -t 192.168.1.108 -p 5555 -l -u=mytest.whatisup # upload to file
-          netcat.py -t 192.168.1.108 -p 5555 -l -e=\"cat /etc/passwd\" # execute command
-          echo 'ABCDEFGHI' | ./netcat.py -t 192.168.1.108 -p 135 # echo local text to server port 135
-          netcat.py -t 192.168.1.108 -p 5555 # connect to server
-          '''))
-    parser.add_argument('-c', '--command', action='store_true', help='initialize command shell')
-    parser.add_argument('-e', '--execute', help='execute specified command')
-    parser.add_argument('-l', '--listen', action='store_true', help='listen')
-    parser.add_argument('-p', '--port', type=int, default=5555, help='specified port')
-    parser.add_argument('-t', '--target', default='192.168.1.203', help='specified IP')
-    parser.add_argument('-u', '--upload', help='upload file')
-    args = parser.parse_args()
+
+    args = parseArgs()
     if args.listen:
         buffer = ''
+        printKitten()
     else:
         buffer = sys.stdin.read()
 
