@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<section class="section">
+<div class="card">
+    <div class="card-content">
+        <div class="media">
+            <div class="media-content">
+                <p class="title is-4">{{post.title}}</p>
+                <p class="subtitle is-6">@{{post.author}}</p>
+            </div>
+        </div>
+        <div class="content">
+            {{post.content}}
+            <p/>
+            <p class="has-text-grey is-size-7">
+                {{post.likes}} likes
+            </p>
+        </div>
+    </div>
+
+    <footer class="card-footer">
+        {% if user.is_authenticated %}
+        <a href="/post/{{post.slug}}/like" class="card-footer-item">Like</a>
+        {% endif %}
+    </footer>
+</div>
+</section>
+
+{% endblock content %}
+
