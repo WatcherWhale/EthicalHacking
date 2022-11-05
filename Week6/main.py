@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+
+# For writing to a file
+
 import sys
 import os
 from subprocess import Popen, PIPE
